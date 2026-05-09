@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Congratulations Veronica! 🎓</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,500;1,300&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --pink-deep:  #c0516a;
+      --pink-main:  #e8788a;
+      --pink-soft:  #f4a7b5;
+      --pink-light: #fce4ec;
+      --pink-blush: #fff0f3;
+      --cream:      #fff9f5;
+      --gold:       #d4a857;
+      --gold-light: #f0d49a;
+      --text-dark:  #3a1a22;
+      --text-mid:   #7a3a4a;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(ellipse at 60% 40%, #ffe0ea 0%, #fff0f3 60%, #fce4ec 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Cormorant Garamond', serif;
+      overflow: hidden;
+    }
+
+    /* ── floating petals ── */
+    .petal {
+      position: fixed;
+      opacity: 0;
+      animation: fall linear infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+    @keyframes fall {
+      0%   { transform: translateY(-40px) rotate(0deg); opacity: .7; }
+      100% { transform: translateY(110vh)  rotate(400deg); opacity: 0; }
+    }
+
+    /* ══════════════════════════════
+       ENVELOPE SCENE
+    ══════════════════════════════ */
+    #envelope-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 28px;
+      z-index: 1;
+      animation: floatIn .9s ease forwards;
+    }
+    @keyframes floatIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .hint-text {
+      font-family: 'Dancing Script', cursive;
+      color: var(--pink-deep);
+      font-size: 1.35rem;
+      text-align: center;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity: .65; transform: scale(1); }
+      50%      { opacity: 1;   transform: scale(1.05); }
+    }
+
+    /* envelope container holds body + flap in 3d space */
+    .envelope {
+      width: 300px;
+      height: 200px;
+      position: relative;
+      cursor: pointer;
+      filter: drop-shadow(0 14px 36px rgba(192,81,106,.28));
+      transition: transform .2s;
+      /* perspective for flap flip */
+      perspective: 800px;
+    }
+    .envelope:hover { transform: scale(1.04) rotate(-1deg); }
+
+    /* ── body (back) ── */
+    .env-body {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(160deg, #fdd5de 0%, #f9bfcc 100%);
+      border-radius: 6px 6px 10px 10px;
+      border: 2px solid var(--pink-soft);
+      z-index: 2;
+      overflow: hidden;
+    }
+
+    /* side triangles drawn with clip-path */
+    .env-left {
+      position: absolute;
+      inset: 0;
+      clip-path: polygon(0 0, 50% 50%, 0 100%);
+      background: linear-gradient(to right, #f0a8bc, #fdd5de);
+    }
+    .env-right {
+      position: absolute;
+      inset: 0;
+      clip-path: polygon(100% 0, 50% 50%, 100% 100%);
+      background: linear-gradient(to left, #f0a8bc, #fdd5de);
+    }
+    .env-bottom {
+      position: absolute;
+      inset: 0;
+      clip-path: polygon(0 100%, 50% 52%, 100% 100%);
+      background: linear-gradient(to top, #e07090, #f4a7b5);
+    }
+
+
+
+    /* ── top flap ── */
+    .env-flap {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      clip-path: polygon(0 0, 50% 52%, 100% 0);
+      background: linear-gradient(170deg, #e8788a, #f4a7b5);
+      transform-origin: top center;
+      transform: rotateX(0deg);
+      /* critical: perspective on parent, transform on child */
+      transition: transform .9s cubic-bezier(.4,0,.2,1),
+                  background .5s;
+      z-index: 10;
+      border-radius: 6px 6px 0 0;
+    }
+    .envelope.opening .env-flap {
+      transform: rotateX(-185deg);
+      background: linear-gradient(170deg, #c0516a, #e8788a);
+    }
+
+    /* ── wax seal ── */
+    .seal {
+      position: absolute;
+      top: 46%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 56px; height: 56px;
+      background: radial-gradient(circle at 35% 30%, var(--gold-light), var(--gold) 70%);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.6rem;
+      box-shadow: 0 4px 14px rgba(160,110,20,.35);
+      z-index: 11;
+      transition: opacity .25s .1s, transform .25s .1s;
+    }
+    .envelope.opening .seal {
+      opacity: 0;
+      transform: translate(-50%,-50%) scale(.5);
+    }
+
+
+    /* ══════════════════════════════
+       CARD
+    ══════════════════════════════ */
+    #card {
+      display: none;
+      width: 370px;
+      background: var(--cream);
+      border-radius: 22px;
+      overflow: hidden;
+      box-shadow:
+        0 24px 64px rgba(192,81,106,.22),
+        0 4px 16px rgba(192,81,106,.12);
+      border: 1.5px solid var(--pink-soft);
+      z-index: 1;
+      animation: cardReveal .9s cubic-bezier(.34,1.56,.64,1) forwards;
+    }
+    @keyframes cardReveal {
+      from { opacity: 0; transform: scale(.75) translateY(24px); }
+      to   { opacity: 1; transform: scale(1)   translateY(0); }
+    }
+
+    /* header */
+    .card-header {
+      background: linear-gradient(135deg, var(--pink-main) 0%, var(--pink-deep) 100%);
+      padding: 30px 24px 22px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .card-header::before,
+    .card-header::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255,255,255,.1);
+    }
+    .card-header::before { width: 130px; height: 130px; top: -40px; right: -30px; }
+    .card-header::after  { width:  90px; height:  90px; bottom: -25px; left: -10px; }
+
+    .grad-cap {
+      font-size: 3.2rem;
+      display: block;
+      margin-bottom: 8px;
+      animation: capBounce 1s ease .7s both;
+    }
+    @keyframes capBounce {
+      0%   { transform: translateY(-20px) scale(.7); opacity: 0; }
+      60%  { transform: translateY(6px)   scale(1.12); opacity: 1; }
+      100% { transform: translateY(0)     scale(1); }
+    }
+
+    .card-header h1 {
+      font-family: 'Dancing Script', cursive;
+      color: #fff;
+      font-size: 2.1rem;
+      line-height: 1.2;
+      text-shadow: 0 2px 8px rgba(0,0,0,.15);
+    }
+    .card-header .tagline {
+      font-family: 'Cormorant Garamond', serif;
+      color: rgba(255,255,255,.8);
+      font-size: .85rem;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      margin-top: 6px;
+    }
+
+    /* gold ribbon */
+    .ribbon {
+      height: 6px;
+      background: linear-gradient(90deg,
+        transparent,
+        var(--gold-light) 20%,
+        var(--gold) 50%,
+        var(--gold-light) 80%,
+        transparent);
+    }
+
+    /* photo strip */
+    .photo-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      padding: 18px 16px 8px;
+    }
+    .photo-slot {
+      aspect-ratio: 1;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 2px solid var(--pink-soft);
+      background: linear-gradient(135deg, var(--pink-light) 0%, #ffd6e0 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 5px;
+      color: var(--pink-deep);
+      font-size: .68rem;
+      letter-spacing: .03em;
+      box-shadow: 0 4px 12px rgba(192,81,106,.12);
+      position: relative;
+    }
+    .photo-slot img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .photo-icon { font-size: 1.7rem; }
+
+    /* message */
+    .card-body {
+      padding: 14px 24px 18px;
+      text-align: center;
+    }
+    .to-name {
+      font-family: 'Dancing Script', cursive;
+      font-size: 1.9rem;
+      color: var(--pink-deep);
+      margin-bottom: 12px;
+    }
+    .card-body p {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.07rem;
+      color: var(--text-mid);
+      line-height: 1.8;
+      font-style: italic;
+    }
+    .highlight {
+      font-style: normal;
+      font-weight: 600;
+      color: var(--pink-deep);
+    }
+    .sparkles {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      font-size: 1.2rem;
+      padding: 10px 0 4px;
+    }
+
+    /* footer */
+    .card-footer {
+      background: linear-gradient(135deg, #fff0f3, var(--pink-light));
+      border-top: 1.5px solid var(--pink-soft);
+      padding: 14px 22px 16px;
+      text-align: center;
+    }
+    .from-text {
+      font-family: 'Dancing Script', cursive;
+      color: var(--pink-deep);
+      font-size: 1.15rem;
+    }
+    .from-text span {
+      display: block;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: .85rem;
+      font-style: italic;
+      color: var(--text-mid);
+      margin-top: 3px;
+      letter-spacing: .04em;
+    }
+
+    /* confetti */
+    .confetti-piece {
+      position: fixed;
+      opacity: 0;
+      pointer-events: none;
+      border-radius: 2px;
+      animation: confettiFall 2.8s ease forwards;
+      z-index: 999;
+    }
+    @keyframes confettiFall {
+      0%   { opacity: 1; transform: translateY(0) rotate(0deg) scale(1); }
+      80%  { opacity: .5; }
+      100% { opacity: 0; transform: translateY(85vh) rotate(720deg) scale(.4); }
+    }
+  </style>
+</head>
+<body>
+
+<div id="petals"></div>
+
+<!-- ══ ENVELOPE ══ -->
+<div id="envelope-wrap">
+  <p class="hint-text">✉️ Klik amplop untuk membukanya~</p>
+
+  <div class="envelope" id="envelope" onclick="openEnvelope()">
+    <!-- letter behind -->
+    <div class="letter-peek"></div>
+    <!-- envelope back & sides -->
+    <div class="env-body">
+      <div class="env-left"></div>
+      <div class="env-right"></div>
+      <div class="env-bottom"></div>
+    </div>
+    <!-- top flap (rotates open) -->
+    <div class="env-flap"></div>
+    <!-- wax seal on flap -->
+    <div class="seal">🌸</div>
+  </div>
+</div>
+
+<!-- ══ CARD ══ -->
+<div id="card">
+
+  <div class="card-header">
+    <span class="grad-cap">🎓</span>
+    <h1>Congratulations!</h1>
+    <p class="tagline">Class of 2025</p>
+  </div>
+
+  <div class="ribbon"></div>
+
+  <!--
+    📸 CARA MENGGANTI FOTO DI VSCODE:
+    Hapus komentar di bawah dan isi src="..." dengan path foto kamu.
+    Contoh: src="foto1.jpg"  (jika satu folder dengan html)
+            src="img/veronica1.jpg"
+
+    Setelah menambahkan <img>, hapus tag .photo-icon dan <span> di dalam slot yang sama.
+  -->
+  <div class="photo-strip">
+
+    <div class="photo-slot" id="slot1">
+      <!-- <img src="foto1.jpg" alt="Foto Veronica 1"> -->
+      <span class="photo-icon">📷</span>
+      <span>Foto 1</span>
+    </div>
+
+    <div class="photo-slot" id="slot2">
+      <!-- <img src="foto2.jpg" alt="Foto Veronica 2"> -->
+      <span class="photo-icon">📷</span>
+      <span>Foto 2</span>
+    </div>
+
+    <div class="photo-slot" id="slot3">
+      <!-- <img src="foto3.jpg" alt="Foto Veronica 3"> -->
+      <span class="photo-icon">📷</span>
+      <span>Foto 3</span>
+    </div>
+
+  </div>
+
+  <div class="card-body">
+    <div class="to-name">Dear Veronica,</div>
+    <p>
+      Selamat atas pencapaian luar biasa ini! 🌸<br/>
+      Setiap tetes keringatmu berbuah manis hari ini.
+      <span class="highlight">Kamu membuktikan bahwa mimpi adalah nyata
+      bagi mereka yang berani memperjuangkannya.</span>
+      Semoga hari wisudamu menjadi awal dari petualangan
+      paling indah dalam hidupmu.
+    </p>
+    <div class="sparkles">✨ 🌷 🎀 🌷 ✨</div>
+    <p style="font-size:.97rem; margin-top:6px;">
+      Dunia menunggumu — pergilah dan taklukkan satu per satu. 💕
+    </p>
+  </div>
+
+  <div class="card-footer">
+    <div class="from-text">
+      With Love 💗
+      <span>— Selalu bangga &amp; mendukungmu —</span>
+    </div>
+  </div>
+
+</div><!-- /card -->
+
+<script>
+  /* ── petals ── */
+  const petalColors = ['#f4a7b5','#e8788a','#ffd6e0','#d4a857','#f9d0d9','#fce4ec'];
+  const petalWrap = document.getElementById('petals');
+  for (let i = 0; i < 24; i++) {
+    const p = document.createElement('div');
+    p.className = 'petal';
+    const size = 8 + Math.random() * 10;
+    p.style.cssText = `
+      left: ${Math.random() * 100}vw;
+      background: ${petalColors[i % petalColors.length]};
+      width: ${size}px;
+      height: ${size * 1.3}px;
+      border-radius: ${Math.random() > .5 ? '50% 0 50% 0' : '0 50% 0 50%'};
+      animation-duration: ${5 + Math.random() * 8}s;
+      animation-delay: ${Math.random() * 9}s;
+    `;
+    petalWrap.appendChild(p);
+  }
+
+  /* ── open envelope ── */
+  let opened = false;
+  function openEnvelope() {
+    if (opened) return;
+    opened = true;
+
+    const env = document.getElementById('envelope');
+    env.classList.add('opening');
+    env.style.cursor = 'default';
+
+    // after flap animation completes → show card
+    setTimeout(() => {
+      document.getElementById('envelope-wrap').style.display = 'none';
+      document.getElementById('card').style.display = 'block';
+      launchConfetti();
+    }, 1150);
+  }
+
+  /* ── confetti ── */
+  function launchConfetti() {
+    const cols = ['#e8788a','#f4a7b5','#d4a857','#c0516a','#f9d0d9','#fff799','#a8d8ea'];
+    for (let i = 0; i < 80; i++) {
+      const c = document.createElement('div');
+      c.className = 'confetti-piece';
+      const w = 6 + Math.random() * 8;
+      c.style.cssText = `
+        left:   ${5 + Math.random() * 90}vw;
+        top:    ${Math.random() * 25}vh;
+        width:  ${w}px;
+        height: ${w * 1.6}px;
+        background:         ${cols[Math.floor(Math.random() * cols.length)]};
+        border-radius:      ${Math.random() > .5 ? '50%' : '2px'};
+        transform:          rotate(${Math.random() * 360}deg);
+        animation-delay:    ${Math.random() * .7}s;
+        animation-duration: ${2.2 + Math.random() * 2}s;
+      `;
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), 5000);
+    }
+  }
+</script>
+</body>
+</html>
